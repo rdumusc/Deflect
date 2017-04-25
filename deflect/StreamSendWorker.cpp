@@ -49,6 +49,19 @@
 namespace
 {
 const unsigned int SEGMENT_SIZE = 512;
+
+int _getSegmentSize()
+{
+    const QString envVar = qgetenv("DEFLECT_TILE_SIZE").constData();
+    if (!envVar.isEmpty())
+    {
+        bool ok = false;
+        const int segmentSize = envVar.toInt(&ok);
+        if (ok && segmentSize > 16)
+            return segmentSize;
+    }
+    return SEGMENT_SIZE;
+}
 }
 
 namespace deflect
@@ -57,7 +70,8 @@ StreamSendWorker::StreamSendWorker(Socket& socket, const std::string& id)
     : _socket(socket)
     , _id(id)
 {
-    _imageSegmenter.setNominalSegmentDimensions(SEGMENT_SIZE, SEGMENT_SIZE);
+    const auto segmentSize = _getSegmentSize();
+    _imageSegmenter.setNominalSegmentDimensions(segmentSize, segmentSize);
 }
 
 StreamSendWorker::~StreamSendWorker()
